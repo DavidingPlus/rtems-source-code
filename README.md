@@ -6,3 +6,5 @@
 
 博客文章见：[Rtems Source Code | DavidingPlus's Blog](https://blog.davidingplus.cn/posts/4936fe45.html)。
 
+阅读代码建议使用 Source Insight 建立索引阅读，本人使用 Source Insight 4 阅读，下载链接：[source insight4.0破解版下载及使用方法-CSDN博客](https://blog.csdn.net/ych9527/article/details/114324451)。
+
