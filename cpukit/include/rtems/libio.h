@@ -146,6 +146,16 @@ struct rtems_libio_tt
 };
 
 /**
+ *  @brief Base File System Initialization
+ *
+ *  Initialize the foundation of the file system.  This is specified
+ *  by the structure rtems_filesystem_mount_table.  The usual
+ *  configuration is a single instantiation of the IMFS or miniIMFS with
+ *  a single "/dev" directory in it.
+ */
+void rtems_filesystem_initialize(void);
+
+/**
  * @brief Mount table entry.
  */
 // 表示一个挂载的文件系统实例，是 Rtems 文件系统挂载表中的一项。
@@ -196,3 +206,21 @@ struct rtems_filesystem_mount_table_entry_tt
     // 发起卸载操作的任务 ID，卸载完成后通过事件通知该任务。
     rtems_id unmount_task;
 };
+
+typedef struct
+{
+    // 描述挂载源，通常是设备路径，如 "/dev/sd0"；对 IMFS 等内存文件系统可为 NULL。
+    const char *source;
+
+    // 挂载目标目录，必须是系统中已存在的路径，如 "/" 或 "/mnt/usb"。
+    const char *target;
+
+    // 文件系统类型的名称字符串，如 "imfs"、"dosfs"、"devfs" 等。
+    const char *filesystemtype;
+
+    // 挂载选项，定义为 rtems_filesystem_options_t 类型，控制如只读、读写等行为。
+    rtems_filesystem_options_t options;
+
+    // 指向文件系统特定的附加数据，一般为 NULL，某些文件系统可能使用此字段传递配置。
+    const void *data;
+} rtems_filesystem_mount_configuration;

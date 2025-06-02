@@ -18,3 +18,5 @@ rtems_filesystem_eval_path_start_with_root_and_current(
     int eval_flags,
     rtems_filesystem_global_location_t *const *global_root_ptr,
     rtems_filesystem_global_location_t *const *global_current_ptr);
+
+void rtems_filesystem_initialize(void);
