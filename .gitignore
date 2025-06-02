@@ -15,3 +15,6 @@ core
 *.mod
 *.order
 *.symvers
+
+# Source Insight 4
+*.si4project
