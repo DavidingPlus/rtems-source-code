@@ -1,4 +1,24 @@
 /**
+ * @brief 初始化一个文件系统实例。
+ *
+ * 该函数负责初始化挂载表项中的文件系统根节点。
+ *
+ * @param[in] mt_entry 指向挂载表项的指针，表示要挂载的文件系统实例。
+ * @param[in] data 用户提供的初始化数据，如设备路径或挂载选项。
+ *
+ * @retval 0 操作成功，文件系统实例初始化完成。
+ * @retval -1 操作失败，设置 errno 以指示具体错误。
+ */
+
+// 定义函数指针类型 rtems_filesystem_fsmount_me_t，表示挂载文件系统的函数。
+// 该函数接受挂载表项指针和用户数据作为参数，返回挂载结果。
+// 返回 0 表示挂载成功，返回 -1 表示挂载失败且设置 errno。
+typedef int (*rtems_filesystem_fsmount_me_t)(
+    rtems_filesystem_mount_table_entry_t *mt_entry, // 指向挂载表项，表示要挂载的文件系统。
+    const void *data                                // 用户传入的初始化数据。
+);
+
+/**
  * @brief File system operations table.
  */
 struct _rtems_filesystem_operations_table
@@ -206,6 +226,38 @@ struct rtems_filesystem_mount_table_entry_tt
     // 发起卸载操作的任务 ID，卸载完成后通过事件通知该任务。
     rtems_id unmount_task;
 };
+
+/**
+ * @brief File system table entry.
+ */
+// 定义一个结构体类型 rtems_filesystem_table_t，用于描述一个可挂载的文件系统类型。
+typedef struct rtems_filesystem_table_t
+{
+    // 文件系统的类型名称，通常为字符串形式，例如 "imfs" 或 "dosfs"。
+    const char *type;
+
+    // 文件系统的挂载函数指针，用于挂载该类型的文件系统。
+    rtems_filesystem_fsmount_me_t mount_h;
+} rtems_filesystem_table_t;
+
+/**
+ * @brief Static table of file systems.
+ *
+ * Externally defined by confdefs.h or the user.
+ */
+extern const rtems_filesystem_table_t rtems_filesystem_table[];
+
+/**
+ * @brief Registers a file system @a type.
+ *
+ * The @a mount_h handler will be used to mount a file system of this @a type.
+ *
+ * @retval 0 Successful operation.
+ * @retval -1 An error occurred.  The @c errno indicates the error.
+ */
+int rtems_filesystem_register(
+    const char *type,
+    rtems_filesystem_fsmount_me_t mount_h);
 
 typedef struct
 {
