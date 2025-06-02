@@ -259,6 +259,60 @@ int rtems_filesystem_register(
     const char *type,
     rtems_filesystem_fsmount_me_t mount_h);
 
+/**
+ * @brief Mounts a file system instance at the specified target path.
+ *
+ * To mount a standard file system instance one of the following defines should
+ * be used to select the file system type
+ * - RTEMS_FILESYSTEM_TYPE_DOSFS,
+ * - RTEMS_FILESYSTEM_TYPE_FTPFS,
+ * - RTEMS_FILESYSTEM_TYPE_IMFS,
+ * - RTEMS_FILESYSTEM_TYPE_JFFS2,
+ * - RTEMS_FILESYSTEM_TYPE_NFS,
+ * - RTEMS_FILESYSTEM_TYPE_RFS, or
+ * - RTEMS_FILESYSTEM_TYPE_TFTPFS.
+ *
+ * Only configured or registered file system types are available.  You can add
+ * file system types to your application configuration with the following
+ * configuration options
+ * - CONFIGURE_FILESYSTEM_DOSFS,
+ * - CONFIGURE_FILESYSTEM_FTPFS,
+ * - CONFIGURE_FILESYSTEM_IMFS,
+ * - CONFIGURE_FILESYSTEM_JFFS2,
+ * - CONFIGURE_FILESYSTEM_NFS,
+ * - CONFIGURE_FILESYSTEM_RFS, and
+ * - CONFIGURE_FILESYSTEM_TFTPFS.
+ *
+ * In addition to these configuration options file system types can be
+ * registered with rtems_filesystem_register().
+ *
+ * @param[in] source The source parameter will be forwarded to the file system
+ * initialization handler.  Usually the source is a path to the corresponding
+ * device file, or @c NULL in case the file system does not use a device file.
+ * @param[in] target The target path must lead to an existing directory, or
+ * must be @c NULL.  In case the target is @c NULL, the root file system will
+ * be mounted.
+ * @param[in] filesystemtype This string selects the file system type.
+ * @param[in] options The options specify if the file system instance allows
+ * read-write or read-only access.
+ * @param[in] data The data parameter will be forwarded to the file system
+ * initialization handler.  It can be used to pass file system specific mount
+ * options.  The data structure for mount options is file system specific.  See
+ * also in the corresponding file system documentation.
+ *
+ * @retval 0 Successful operation.
+ * @retval -1 An error occurred.  The @c errno indicates the error.
+ *
+ * @see rtems_filesystem_register(), mount_and_make_target_path(), @ref DOSFS
+ * and @ref JFFS2.
+ */
+int mount(
+    const char *source,
+    const char *target,
+    const char *filesystemtype,
+    rtems_filesystem_options_t options,
+    const void *data);
+
 typedef struct
 {
     // 描述挂载源，通常是设备路径，如 "/dev/sd0"；对 IMFS 等内存文件系统可为 NULL。
