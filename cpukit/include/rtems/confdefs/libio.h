@@ -1,3 +1,28 @@
+const rtems_filesystem_table_t rtems_filesystem_table[] = {
+    {"/", IMFS_initialize_support},
+#ifdef CONFIGURE_FILESYSTEM_DOSFS
+    {RTEMS_FILESYSTEM_TYPE_DOSFS, rtems_dosfs_initialize},
+#endif
+#ifdef CONFIGURE_FILESYSTEM_FTPFS
+    {RTEMS_FILESYSTEM_TYPE_FTPFS, rtems_ftpfs_initialize},
+#endif
+#ifdef CONFIGURE_FILESYSTEM_IMFS
+    {RTEMS_FILESYSTEM_TYPE_IMFS, IMFS_initialize},
+#endif
+#ifdef CONFIGURE_FILESYSTEM_JFFS2
+    {RTEMS_FILESYSTEM_TYPE_JFFS2, rtems_jffs2_initialize},
+#endif
+#ifdef CONFIGURE_FILESYSTEM_NFS
+    {RTEMS_FILESYSTEM_TYPE_NFS, rtems_nfs_initialize},
+#endif
+#ifdef CONFIGURE_FILESYSTEM_RFS
+    {RTEMS_FILESYSTEM_TYPE_RFS, rtems_rfs_rtems_initialise},
+#endif
+#ifdef CONFIGURE_FILESYSTEM_TFTPFS
+    {RTEMS_FILESYSTEM_TYPE_TFTPFS, rtems_tftpfs_initialize},
+#endif
+    {NULL, NULL}};
+
 const rtems_filesystem_mount_configuration
     rtems_filesystem_root_configuration = {
         NULL,
