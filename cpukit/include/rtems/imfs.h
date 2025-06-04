@@ -150,6 +150,27 @@ struct IMFS_jnode_tt
     const IMFS_node_control *control;
 };
 
+typedef struct
+{
+    const IMFS_mknod_control *directory;
+    const IMFS_mknod_control *device;
+    const IMFS_mknod_control *file;
+    const IMFS_mknod_control *fifo;
+} IMFS_mknod_controls;
+
+typedef struct
+{
+    IMFS_directory_t Root_directory;
+    const IMFS_mknod_controls *mknod_controls;
+} IMFS_fs_info_t;
+
+typedef struct
+{
+    IMFS_fs_info_t *fs_info;
+    const rtems_filesystem_operations_table *ops;
+    const IMFS_mknod_controls *mknod_controls;
+} IMFS_mount_data;
+
 /*
  *  Routines
  */
