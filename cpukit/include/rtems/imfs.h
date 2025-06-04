@@ -6,6 +6,73 @@ struct IMFS_jnode_tt;
 typedef struct IMFS_jnode_tt IMFS_jnode_t;
 
 /**
+ * @addtogroup IMFSGenericNodes
+ */
+/**@{*/
+
+/**
+ * @brief Initializes an IMFS node.
+ *
+ * @param[in] node The IMFS node.
+ * @param[in] arg The user provided argument pointer.  It may contain node
+ *   specific initialization information.
+ *
+ * @retval node Successful operation.
+ * @retval NULL An error occurred.  The @c errno indicates the error.  This
+ * will abort the make operation.
+ *
+ * @see IMFS_node_control, IMFS_node_initialize_default(), and
+ * IMFS_node_initialize_generic().
+ */
+typedef IMFS_jnode_t *(*IMFS_node_control_initialize)(
+    IMFS_jnode_t *node,
+    void *arg);
+
+/**
+ * @brief Prepares the removal of an IMFS node from its parent directory.
+ *
+ * @param[in] node The IMFS node.
+ *
+ * @retval node Successful operation.
+ * @retval NULL An error occurred.  The @c errno indicates the error.  This
+ * will abort the removal operation.
+ *
+ * @see IMFS_node_control and IMFS_node_remove_default().
+ */
+typedef IMFS_jnode_t *(*IMFS_node_control_remove)(
+    IMFS_jnode_t *node);
+
+/**
+ * @brief Returns the node and does nothing else.
+ *
+ * @param[in] node The IMFS node.
+ *
+ * @retval node Returns always the node passed as parameter.
+ *
+ * @see IMFS_node_control.
+ */
+IMFS_jnode_t *IMFS_node_remove_default(
+    IMFS_jnode_t *node);
+
+/**
+ * @brief Destroys an IMFS node.
+ *
+ * @param[in] node The IMFS node.
+ *
+ * @see IMFS_node_control and IMFS_node_destroy_default().
+ */
+typedef void (*IMFS_node_control_destroy)(IMFS_jnode_t *node);
+
+/**
+ * @brief Frees the node.
+ *
+ * @param[in] node The IMFS node.
+ *
+ * @see IMFS_node_control.
+ */
+void IMFS_node_destroy_default(IMFS_jnode_t *node);
+
+/**
  * @brief IMFS node control.
  */
 // IMFS_node_control：定义 IMFS 节点类型的操作控制器。

@@ -40,3 +40,9 @@ IMFS_jnode_t *IMFS_initialize_node(
     // 调用节点控制器中定义的初始化函数以执行具体类型的初始化。
     return (*node_control->node_initialize)(node, arg);
 }
+
+IMFS_jnode_t *IMFS_node_remove_default(
+    IMFS_jnode_t *node)
+{
+    return node;
+}
