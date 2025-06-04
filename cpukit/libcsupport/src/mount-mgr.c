@@ -8,6 +8,100 @@ typedef struct
     rtems_filesystem_table_t entry;
 } filesystem_node;
 
+// 迭代所有已注册文件系统，包括静态表和动态注册链表。
+// 对每个文件系统调用用户提供的 routine 回调函数，当回调返回 true 时停止迭代。
+bool rtems_filesystem_iterate(
+    rtems_per_filesystem_routine routine, // 用户提供的回调函数指针。
+    void *routine_arg                     // 传递给回调函数的用户参数指针。
+)
+{
+    // 获取全局动态注册的文件系统链表控制结构指针。
+    rtems_chain_control *chain = &filesystem_chain;
+
+    // 指向静态文件系统表的第一个表项，用于预先注册的文件系统。
+    const rtems_filesystem_table_t *table_entry = &rtems_filesystem_table[0];
+
+    // 链表遍历时的当前节点指针，初始化为空。
+    rtems_chain_node *node = NULL;
+
+    // 标记是否需要停止继续迭代，初始为 false。
+    bool stop = false;
+
+    // 遍历静态文件系统表，直到遇到表项 type 为 NULL 或者回调要求停止。
+    while (table_entry->type && !stop)
+    {
+        // 调用用户回调，将当前静态表项和用户参数一起传递。
+        stop = (*routine)(table_entry, routine_arg);
+
+        // 移动到下一个静态表项。
+        ++table_entry;
+    }
+
+    // 如果静态表项遍历完成且回调未要求停止，则遍历动态链表中的注册项。
+    if (!stop)
+    {
+        // 进入临界区，锁定全局文件系统链表，防止并发修改。
+        rtems_libio_lock();
+
+        // 从链表头开始遍历，直到到达链表尾或回调要求停止。
+        for (
+            node = rtems_chain_first(chain);
+            !rtems_chain_is_tail(chain, node) && !stop;
+            node = rtems_chain_next(node))
+        {
+            // 将链表节点转换为文件系统节点结构指针，以获取 entry 字段。
+            const filesystem_node *fsn = (filesystem_node *)node;
+
+            // 调用用户回调，将动态注册表项 entry 和用户参数一起传递。
+            stop = (*routine)(&fsn->entry, routine_arg);
+        }
+
+        // 遍历完成或停止后，退出临界区，解锁链表。
+        rtems_libio_unlock();
+    }
+
+    // 返回回调最终是否请求停止迭代的标志。
+    return stop;
+}
+
+typedef struct
+{
+    const char *type;
+    rtems_filesystem_fsmount_me_t mount_h;
+} find_arg;
+
+static bool find_handler(const rtems_filesystem_table_t *entry, void *arg)
+{
+    find_arg *fa = arg;
+
+    if (strcmp(entry->type, fa->type) != 0)
+    {
+        return false;
+    }
+    else
+    {
+        fa->mount_h = entry->mount_h;
+
+        return true;
+    }
+}
+
+rtems_filesystem_fsmount_me_t
+rtems_filesystem_get_mount_handler(
+    const char *type)
+{
+    find_arg fa = {
+        .type = type,
+        .mount_h = NULL};
+
+    if (type != NULL)
+    {
+        rtems_filesystem_iterate(find_handler, &fa);
+    }
+
+    return fa.mount_h;
+}
+
 // 注册文件系统类型及挂载处理函数。注册成功返回 0，失败返回错误码。
 int rtems_filesystem_register(
     // 文件系统类型标识（如 "imfs", "dosfs"）。

@@ -136,6 +136,16 @@ struct _rtems_filesystem_file_handlers_r
 };
 
 /**
+ * @brief Gets the mount handler for the file system @a type.
+ *
+ * @return The file system mount handler associated with the @a type, or
+ * @c NULL if no such association exists.
+ */
+rtems_filesystem_fsmount_me_t
+rtems_filesystem_get_mount_handler(
+    const char *type);
+
+/**
  * @brief An open file data structure.
  *
  * It will be indexed by 'fd'.
@@ -312,6 +322,35 @@ int mount(
     const char *filesystemtype,
     rtems_filesystem_options_t options,
     const void *data);
+
+/**
+ * @brief Per file system type routine.
+ *
+ * @see rtems_filesystem_iterate().
+ *
+ * @retval true Stop the iteration.
+ * @retval false Continue the iteration.
+ */
+typedef bool (*rtems_per_filesystem_routine)(
+    const rtems_filesystem_table_t *fs_entry,
+    void *arg);
+
+/**
+ * @brief Iterates over all file system types.
+ *
+ * For each file system type the @a routine will be called with the entry and
+ * the @a routine_arg parameter.
+ *
+ * Do not register or unregister file system types in @a routine.
+ *
+ * The iteration is protected by the IO library mutex.
+ *
+ * @retval true Iteration stopped due to @a routine return status.
+ * @retval false Iteration through all entries.
+ */
+bool rtems_filesystem_iterate(
+    rtems_per_filesystem_routine routine,
+    void *routine_arg);
 
 typedef struct
 {
